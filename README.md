@@ -1,1 +1,2 @@
-# cs224w_ssm
+# cs224w Project, Group: Magdy, Abs and Surag
+## Please one VC term sheet at a time... 
