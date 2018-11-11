@@ -1,3 +1,11 @@
+import snap
+import sys, os, glob
+import itertools
+import networkx as nx
+from matplotlib import pyplot as plt
+import tqdm
+sys.path.append('../')
+
 class MotifCounter(object):
     def __init__(self, num_nodes, subgraph_path = "../data/subgraphs"):
         self.node_motifs = {2:2, 3:13, 4:199}
@@ -14,8 +22,8 @@ class MotifCounter(object):
         if G1.GetEdges() > G2.GetEdges():
             return False
         else:
-            G = snap.ConvertGraph(snap.PNGraph, G2, True)
-            H = snap.ConvertGraph(snap.PNGraph, G1, True)
+            G = G2
+            H = G1
             
         for p in itertools.permutations(range(self.num_nodes)):
             edge = G.BegEI()
@@ -77,12 +85,13 @@ class MotifCounter(object):
 
     def count_motifs(self, G):
         
-    self.counts = [0]*self.node_motifs[num_nodes]
-    for node in tqdm(G.Nodes(), total = G.GetNodes()):
-        v = node.GetId()
-        v_extension = set([nbr for nbr in node.GetOutEdges() if nbr > v])
-        v_extension.update([nbr for nbr in node.GetInEdges() if nbr > v])
-        self.extend_subgraph(G, self.num_nodes, [v], v_extension, v, verbose)
+        self.counts = [0]*self.node_motifs[num_nodes]
+        for node in tqdm(G.Nodes(), total = G.GetNodes()):
+            v = node.GetId()
+            v_extension = set([nbr for nbr in node.GetOutEdges() if nbr > v])
+            v_extension.update([nbr for nbr in node.GetInEdges() if nbr > v])
+            self.extend_subgraph(G, self.num_nodes, [v], v_extension, v, verbose)
+        return self.counts
 
     def extend_subgraph(self, G, k, sg, v_ext, node_id, verbose=False):
 
@@ -100,3 +109,15 @@ class MotifCounter(object):
             v_new_ext.update([nbr for nbr in w_nodeI.GetInEdges() if (nbr > node_id and nbr not in sg and nbr not in sg_nbrs)])
             extend_subgraph(G,k, sg, v_new_ext, node_id, verbose)
             sg.remove(w)
+    
+    def count_iso(self, G, sg, verbose=False):
+    if verbose:
+        print(sg)
+    nodes = snap.TIntV()
+    for NId in sg:
+        nodes.Add(NId)
+    # This call requires latest version of snap (4.1.0)
+    SG = snap.GetSubGraphRenumber(G, nodes)
+    for i in range(len(self.motifs)):
+        if self.match(self.motifs[i], SG):
+            self.counts[i] += 1
