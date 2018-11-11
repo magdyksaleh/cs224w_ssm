@@ -12,7 +12,6 @@ def genErdosRenyi(G):
     """
     N = G.GetNodes()
     E = G.GetEdges()
-
     Graph = snap.TUNGraph.New()
     for i in range(N):
         Graph.AddNode(i)
@@ -56,7 +55,7 @@ X_ER_LS, Y_ER_LS = getDataPointsToPlot(G_ER_LS)
 
 #Erdos graph for SW1222
 G_ER_LS = genErdosRenyi(G_SW1222)
-X_ER_SW, Y_ER_SW = getDataPointsToPlot(G_ER_LS)
+X_ER_SW, Y_ER_SW = getDataPointsToPlot(G_SW1222)
 
 # plt.scatter(X_LS174T, Y_LS174T, color = 'y', label = 'LS174T')
 # plt.scatter(X_ER_LS, Y_ER_LS, color = 'b', label = 'LS174T - Erdos')
