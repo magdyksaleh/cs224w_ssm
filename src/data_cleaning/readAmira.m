@@ -57,7 +57,7 @@ while ischar(curLine)
     end
     
     %Variable Definition line
-    if ~isempty(strfnd(curLine,'@'))
+    if ~isempty(strfind(curLine,'@'))
         vspl = strsplit(curLine,' ');
         nvspl = numel(vspl);
         if nvspl == 6
