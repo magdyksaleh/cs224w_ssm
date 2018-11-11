@@ -1,22 +1,15 @@
-import snap
-import sys, os
-import itertools
-import networkx as nx
-from matplotlib import pyplot as plt
-import tqdm
-sys.path.append('../')
-
 class MotifCounter(object):
     def __init__(self, num_nodes, subgraph_path = "../data/subgraphs"):
-        self.motif_counts = {2:2, 3:13, 4:500}
+        self.node_motifs = {2:2, 3:13, 4:199}
         self.subgraph_path = os.path.join(subgraph_path, str(num_nodes))
+        if not os.path.exists(self.subgraph_path):
+            os.makedirs(self.subgraph_path)
         self.num_nodes = num_nodes
-        
-        #if len(os.listdir(self.subgraph_path)) == 0:        
-        self.create_motifs()
-        #self.motifs = [snap.LoadEdgeList(snap.PNGraph, os.path.join(self.subgraph_path,"{}.txt".format(i)), 0, 1) for i in range(self.motif_counts[num_nodes])]
-        
-        
+        if len(glob.glob(os.path.join(self.subgraph_path, '*.txt')))==0:
+            self.motifs = self.create_motifs()
+            [snap.SaveEdgeList(graph, os.path.join(self.subgraph_path,"{}.txt".format(i))) for i,graph in enumerate(self.motifs)]
+        else:
+            self.motifs = [snap.LoadEdgeList(snap.PNGraph, os.path.join(self.subgraph_path,"{}.txt".format(i)), 0, 1) for i in range(self.node_motifs[num_nodes])]
     def match(self, G1, G2):
         if G1.GetEdges() > G2.GetEdges():
             return False
@@ -36,14 +29,15 @@ class MotifCounter(object):
                 break
         return matches
     
-    def create_motifs(self):
+    def create_motifs(self, draw=False):
         #print("hello")
         graph_list = []
         num_found = 0
         for graph in tqdm.tqdm(self.enumerate_graphs(self.num_nodes), total=2**(self.num_nodes*(self.num_nodes-1))):            
             if num_found==0:
                 graph_list.append(graph)
-                self.draw_graph(graph, os.path.join(self.subgraph_path, str(num_found)+'.png') )
+                if draw:
+                    self.draw_graph(graph, os.path.join(self.subgraph_path, str(num_found)+'.png') )
                 num_found += 1
             else:
                 for generated_subgraph in graph_list:
@@ -51,10 +45,11 @@ class MotifCounter(object):
                     if isomorphic:
                         break
                 if not isomorphic:
-                    self.draw_graph(graph, os.path.join(self.subgraph_path, str(num_found)+'.png') )
+                    if draw:
+                        self.draw_graph(graph, os.path.join(self.subgraph_path, str(num_found)+'.png') )
                     graph_list.append(graph)
                     num_found+=1
-        print(len(graph_list))
+        return graph_list
     
     def enumerate_graphs(self, k):
         for seq in itertools.product("01", repeat=k*(k-1)):
@@ -79,6 +74,29 @@ class MotifCounter(object):
             G.add_edge(e.GetSrcNId(), e.GetDstNId())
         nx.draw(G)
         plt.savefig(outname)
+
+    def count_motifs(self, G):
         
-if __name__=='__main__':
-    mc = MotifCounter(5)
+    self.counts = [0]*self.node_motifs[num_nodes]
+    for node in tqdm(G.Nodes(), total = G.GetNodes()):
+        v = node.GetId()
+        v_extension = set([nbr for nbr in node.GetOutEdges() if nbr > v])
+        v_extension.update([nbr for nbr in node.GetInEdges() if nbr > v])
+        self.extend_subgraph(G, self.num_nodes, [v], v_extension, v, verbose)
+
+    def extend_subgraph(self, G, k, sg, v_ext, node_id, verbose=False):
+
+        if len(sg) is k:
+            count_iso(G, sg, verbose)
+            return
+        sg_nbrs = copy.deepcopy(v_ext)
+
+        while len(v_ext) != 0:
+            w = v_ext.pop()
+            w_nodeI = G.GetNI(w)
+            v_new_ext = copy.deepcopy(v_ext)
+            sg.append(w)
+            v_new_ext.update([nbr for nbr in w_nodeI.GetOutEdges() if (nbr > node_id and nbr not in sg and nbr not in sg_nbrs)])
+            v_new_ext.update([nbr for nbr in w_nodeI.GetInEdges() if (nbr > node_id and nbr not in sg and nbr not in sg_nbrs)])
+            extend_subgraph(G,k, sg, v_new_ext, node_id, verbose)
+            sg.remove(w)
