@@ -41,7 +41,6 @@ def getDataPointsToPlot(Graph):
     X = [i for i in range(max(deg))]
     Y = [float(deg.count(i))/Graph.GetNodes() for i in X]
     X,Y = zip(*[(x,y) for x,y in zip(X,Y) if y > 0])
-    print X, Y
     return X, Y
 
 G_LS174t = snap.LoadEdgeList(snap.PNEANet, "../data/Edgelist/LS174T_Edgelist_spatialGraph_RIN.txt", 0, 1)
