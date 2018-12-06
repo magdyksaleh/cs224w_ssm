@@ -2,33 +2,40 @@ import snap
 from util import *
 import matplotlib.pyplot as plt
 import numpy as np
+import util_data
+
+
 
 
 G_LS174t = snap.LoadEdgeList(snap.PNEANet, "../data/Edgelist/LS174T_clean_EdgesList.txt", 0, 1)
-G_SW122 = snap.LoadEdgeList(snap.PNEANet, "../data/Edgelist/SW1222_clean_EdgesList.txt", 0, 1)
-
+G_SW1222 = snap.LoadEdgeList(snap.PNEANet, "../data/Edgelist/SW1222_clean_EdgesList.txt", 0, 1)
 G_Mesentery = snap.LoadEdgeList(snap.PNEANet, "../data/Edgelist/Mesentery_clean_EdgeList.txt", 0, 1)
-
-
 div, conv = getNodeSplit(G_LS174t)
 
-print "converegent frac: {}".format(float(conv)/(div+conv))
-print "diveregent frac: {}".format(float(div)/(div+conv))
 
-print "Total Nodes: {}".format(G_LS174t.GetNodes())
-print "Nodes w/ equal in and out: {}".format(G_LS174t.GetNodes()-div-conv)
+G_NullTit = genTreeInvTreeNullModel(13)
+# for edge in G_NullTit.Edges():
+#     print edge.GetSrcNId(), edge.GetDstNId()
+# plotBFSProp(G_NullTit, 'Null_h_3') 
 
-inlets = getInletIds(G_Mesentery)
-print inlets[1]
+print(snap.GetMxWcc(G_Mesentery).GetNodes())
+getInletHist(G_Mesentery, 'Healty')
+getInletScatter(G_Mesentery, 'Healthy')
+getInletRadiusPlot(G_Mesentery, 'Healthy',
+    '/Users/magdy/Desktop/Stanford/Fall18/224w/project/data/og_files/Flow2Amira(Small).txt')
 
-outBFS, propFrontDivLen, propFrontConvLen, propFrontLens = BFS_mod(G_Mesentery, inlets)
 
-print len(outBFS)
 
-plt.plot(propFrontConvLen, label='Convergent Nodes')
-plt.plot(propFrontDivLen, label='Diveregent Nodes')
-# plt.plot(propFrontLens, label='Total Nodes')
-plt.xlabel('BFS iteration')
-plt.ylabel('Number of Nodes')
-plt.legend()
-plt.show()
+print(snap.GetMxWcc(G_LS174t).GetNodes())
+getInletHist(G_LS174t, 'LS174T')
+getInletScatter(G_LS174t, 'LS174T')
+getInletRadiusPlot(G_LS174t, 'LS174T',
+    '/Users/magdy/Desktop/Stanford/Fall18/224w/project/data/og_files/spatialGraph_RIN.am')
+
+
+print(snap.GetMxWcc(G_SW1222).GetNodes())
+getInletHist(G_SW1222, 'SW1222')
+getInletScatter(G_SW1222, 'SW1222') 
+
+getInletRadiusPlot(G_SW1222, 'SW1222',
+    '/Users/magdy/Desktop/Stanford/Fall18/224w/project/data/og_files/SW122_spatialGraph_RIN.txt')
