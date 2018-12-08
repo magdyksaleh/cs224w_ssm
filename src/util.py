@@ -94,7 +94,6 @@ def getInletIds(G):
 def getOutletIds(G):
     return [node.GetId() for node in G.Nodes() if node.GetOutDeg() == 0]
 
-
 def BFS_mod(G, nodeIds):
     """
     Outlink following BFS with printing every time the queue is empty
@@ -103,7 +102,7 @@ def BFS_mod(G, nodeIds):
     return (outBFS, propFrontDivLen, propFrontConvLen, propFrontLens)
     """
     # node = G.GetNI(nodeId)
-    print "Inlets: {}".format(nodeIds)
+    #print "Inlets: {}".format(nodeIds)
     queue = set(nodeIds)
     propFront = set()
     propFrontDivLen, propFrontConvLen, propFrontLens = [], [], []
@@ -117,15 +116,15 @@ def BFS_mod(G, nodeIds):
             propFrontDivLen.append(divNodes)              
             propFrontConvLen.append(convNodes)               
             propFrontLens.append(len(propFront))
-            print "\ntotal nodes: {}".format(len(propFront))
-            print "divergent nodes: {}".format(divNodes)
-            print "convergent nodes: {}".format(convNodes)
+            #print "\ntotal nodes: {}".format(len(propFront))
+            #print "divergent nodes: {}".format(divNodes)
+            #print "convergent nodes: {}".format(convNodes)
             propFront.clear()
         newNode = queue.pop()
         seen.add(newNode)
-        propFront = propFront.union(set([G.GetNI(newNode).GetOutNId(i) for i in range(G.GetNI(newNode).GetOutDeg()) if G.GetNI(newNode).GetOutNId(i) not in seen]))
+        propFront = propFront.union(set([i for i in G.GetNI(newNode).GetOutEdges() if i not in seen]))
     return (outBFS, propFrontDivLen, propFrontConvLen, propFrontLens)
-        
+
 
 def plotBFSProp(Graph, name):
     inlets = getInletIds(Graph)
