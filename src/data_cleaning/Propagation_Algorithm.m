@@ -11,7 +11,7 @@ clearvars
 clc
 
 %LOADING IN THE DATA
-filename = '/Users/magdy/Desktop/Stanford/Fall18/224w/project/data/og_files/SW122_spatialGraph_RIN.txt'
+filename = '/Users/magdy/Desktop/Stanford/Fall18/224w/project/data/og_files/spatialGraph_RIN.am'
 
 [data, definition, vdefinition] = readAmira(filename);
 
@@ -31,3 +31,5 @@ numParam = numel(data);
 [node_filtered,seg_filtered,seg_filtered_Index] = correctFlows(node_filtered,seg_filtered,seg_filtered_Index,data);
 disp('Segments filtered, zero flow regions identified')
 disp('Preprocessing Complete');
+
+findInlets(node_filtered,seg_filtered,seg_filtered_Index)

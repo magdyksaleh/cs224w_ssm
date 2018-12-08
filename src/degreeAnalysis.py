@@ -76,11 +76,6 @@ plt.legend()
 plt.show()
 
 
-
-
-
-
-
 # print zip(X_LS174T, Y_LS174T)
 # G_LS174t = snap.LoadEdgeList(snap.PNEANET, "../data/Edgelist/LS174T_Edgelist_spatialGraph_RIN.txt", 0, 1)
 # X_LS174T, Y_LS174T = getDataPointsToPlot(G_LS174t)

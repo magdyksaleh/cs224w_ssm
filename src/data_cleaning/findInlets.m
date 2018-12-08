@@ -8,8 +8,10 @@ function [Seg_in, Inlet] = findInlets(node,seg,seg_Index)
 %   Inlet a structure conatining the properties of each inlet
 
 cntr  = 1;
+nodeCntr = 1;
 for i = 1:numel(node)
     if isempty(node(i).connectionIn)
+        nodeCntr = nodeCntr + 1;
         for j = 1:numel(node(i).connectionOut)/3
             Seg_in(cntr,:) = node(i).connectionOut(j,:);
             loc = findRowInIndexV(node(i).connectionOut(j,:),seg_Index,3);
@@ -19,4 +21,6 @@ for i = 1:numel(node)
     end
 end
     disp('Inlets found')
+    disp('Inlet count:')
+    disp(nodeCntr)
 end 
