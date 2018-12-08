@@ -210,6 +210,8 @@ def getInletRadiusPlot(G, name, filename):
     plt.clf()
 
 def influence_maximisation(G, possible_nodes, k=5):
+    # Take in graph G, nodes from which to select top k, and returns optimal set of k
+    # nodes to maximise influence as well as the set of influenced nodes
     possible_nodes = list(possible_nodes)
     influence_dict = {node:get_influence_set(G, node) for node in possible_nodes}
     influence_dict = OrderedDict(sorted(influence_dict.items(), key=lambda t: len(t[1]), reverse = True))
@@ -238,7 +240,7 @@ def influence_maximisation(G, possible_nodes, k=5):
                 del influence_list[0]
                 influence_list.insert(len(influence_list)-insert_idx, (checked_node, checked_influence))
         influence_dict = OrderedDict(influence_list)
-    return optimal_set
+    return optimal_set, current_influence
 
 
 def get_influence_set(G, x, S = set([])):
