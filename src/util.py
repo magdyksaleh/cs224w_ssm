@@ -6,6 +6,7 @@ import collections
 import bisect
 from collections import OrderedDict
 from scipy.stats import pearsonr
+from tqdm import tqdm
 
 #tree+inverted tree nullmodel
 def genTreeInvTreeNullModelPlot(h):
@@ -218,6 +219,7 @@ def influence_maximisation(G, possible_nodes, k=5):
     optimal_set = set()
     current_influence = set()
     for i in range(k):
+        # print "Beginning selection %d"%i
         top_node, influence_set = influence_dict.popitem(False)
         optimal_set.add(top_node)
         current_influence = current_influence | influence_set
@@ -225,6 +227,7 @@ def influence_maximisation(G, possible_nodes, k=5):
             break
         influence_list = influence_dict.items()
         calculated_set = set()
+        # pbar = tqdm(total=G.GetNodes())
         while True:
             if influence_list[0][0] in calculated_set:
                 break
@@ -239,8 +242,11 @@ def influence_maximisation(G, possible_nodes, k=5):
             else:
                 del influence_list[0]
                 influence_list.insert(len(influence_list)-insert_idx, (checked_node, checked_influence))
+        #     pbar.update(1)
+        # pbar.close()
         influence_dict = OrderedDict(influence_list)
-    return optimal_set, current_influence
+        list_of_lengths.append(len(current_influence))
+    return optimal_set, current_influence, list_of_lengths
 
 
 def get_influence_set(G, x, S = set([])):
