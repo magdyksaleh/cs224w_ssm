@@ -1,15 +1,16 @@
 import snap
 import numpy as np
+import collections
 
 
-def loadNodeAttr(filename, small=False):
+def loadNodeAttr(filename, attr='radius', small=False):
     """ 
     Loads the node attributes from the amira files
     """
     #get number of edges points
     f = open(filename, 'r')
-    edgeFlag, edgePointFlag, radiusFlag = False, False, False
-    edges, radii = [], []
+    edgeFlag, edgePointFlag, radiusFlag, flowFlag, pressureFlag = False, False, False, False, False
+    edges, radii, pressure, flow = [], [], [], []
     edgePointDict, nodeDict = {}, {}
     edgePointCntr = 0
 
@@ -31,10 +32,26 @@ def loadNodeAttr(filename, small=False):
         
         if ("@6" in line) and not ("{" in line): 
             radiusFlag = False
+            pressureFlag = True
+            continue
+        
+        if ("@7" in line) and not ("{" in line): 
+            pressureFlag = False
+            flowFlag = True
+            continue
+        
+        if ("@8" in line) and not ("{" in line): 
+            flowFlag = False
             break
+        
+        if flowFlag:
+            flow.append(float(line.strip()))
 
         if radiusFlag:
             radii.append(float(line.strip()))
+        
+         if pressureFlag:
+            pressure.append(float(line.strip()))
         
         if edgeFlag:
             [srd, dst] = line.split()
@@ -50,19 +67,50 @@ def loadNodeAttr(filename, small=False):
         
 
     cntr = 0
-    for edge in edges:
-        numPoints = edgePointDict[edge] if not small else 2
-        src, dst = edge
+    if attr='radius':
+        for edge in edges:
+            numPoints = edgePointDict[edge] if not small else 2
+            src, dst = edge
 
-        if src in nodeDict:
-            nodeDict[src].append(radii[cntr])
-        else: nodeDict[src] = [radii[cntr]]
-        
-        cntr += numPoints - 1
-        if dst in nodeDict:
-            nodeDict[dst].append(radii[cntr])
-        else: nodeDict[dst] = [radii[cntr]]
-        cntr += 1
+            if src in nodeDict:
+                nodeDict[src].append(radii[cntr])
+            else: nodeDict[src] = [radii[cntr]]
+            
+            cntr += numPoints - 1
+            if dst in nodeDict:
+                nodeDict[dst].append(radii[cntr])
+            else: nodeDict[dst] = [radii[cntr]]
+            cntr += 1
+    
+    if attr='pressure':
+        for edge in edges:
+            numPoints = edgePointDict[edge] if not small else 2
+            src, dst = edge
+
+            if src in nodeDict:
+                nodeDict[src].append(pressure[cntr])
+            else: nodeDict[src] = [pressure[cntr]]
+            
+            cntr += numPoints - 1
+            if dst in nodeDict:
+                nodeDict[dst].append(pressure[cntr])
+            else: nodeDict[dst] = [pressure[cntr]]
+            cntr += 1
+    
+    if attr='flow':
+        for edge in edges:
+            numPoints = edgePointDict[edge] if not small else 2
+            src, dst = edge
+
+            if src in nodeDict:
+                nodeDict[src].append(flow[cntr])
+            else: nodeDict[src] = [flow[cntr]]
+            
+            cntr += numPoints - 1
+            if dst in nodeDict:
+                nodeDict[dst].append(flow[cntr])
+            else: nodeDict[dst] = [flow[cntr]]
+            cntr += 1
     
     for node in nodeDict:
         nodeDict[node] = sum(nodeDict[node])/len(nodeDict[node])
