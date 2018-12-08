@@ -217,7 +217,8 @@ def influence_maximisation(G, possible_nodes, k=5):
     influence_dict = OrderedDict(sorted(influence_dict.items(), key=lambda t: len(t[1]), reverse = True))
     optimal_set = set()
     current_influence = set()
-    for i in range(k):
+    list_of_lengths = []
+    for i in tqdm(range(k)):
         # print "Beginning selection %d"%i
         top_node, influence_set = influence_dict.popitem(False)
         optimal_set.add(top_node)
