@@ -67,7 +67,7 @@ def loadNodeAttr(filename, attr='radius', small=False):
         
 
     cntr = 0
-    if attr='radius':
+    if attr=='radius':
         for edge in edges:
             numPoints = edgePointDict[edge] if not small else 2
             src, dst = edge
@@ -82,7 +82,7 @@ def loadNodeAttr(filename, attr='radius', small=False):
             else: nodeDict[dst] = [radii[cntr]]
             cntr += 1
     
-    if attr='pressure':
+    if attr=='pressure':
         for edge in edges:
             numPoints = edgePointDict[edge] if not small else 2
             src, dst = edge
@@ -97,7 +97,7 @@ def loadNodeAttr(filename, attr='radius', small=False):
             else: nodeDict[dst] = [pressure[cntr]]
             cntr += 1
     
-    if attr='flow':
+    if attr=='flow':
         for edge in edges:
             numPoints = edgePointDict[edge] if not small else 2
             src, dst = edge
