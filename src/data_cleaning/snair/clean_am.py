@@ -1,4 +1,5 @@
 from collections import defaultdict
+import numpy as np
 import copy
 
 def read_am(fname):
@@ -18,37 +19,34 @@ def read_am(fname):
     return dat
 
 def edgeProps(dat, cord_idx = 1, edge_idx = 2, numedgepts_idx = 3, pres_idx = 6, flow_idx = 7, radii_idx = 5):
-    edgeProps            = defaultdict(lambda: defaultdict(list))  #edge indexed dict
-    edgePointCntr      = 0 
+    edgeProps = defaultdict(lambda: defaultdict(list))  #edge indexed dict
+    edgePointCntr = 0 
 
     for i, x in enumerate(dat[numedgepts_idx]):
         curEdge = tuple(dat[edge_idx][i])
         x = x[0]
-
-        srcCords, dstCords  = dat[cord_idx][int(curEdge[0])], dat[cord_idx][int(curEdge[1])]
-        srcPreassure, dstPreassure  = dat[pres_idx][edgePointCntr ][0], dat[pres_idx][edgePointCntr+int(x)-1 ][0]
-        srcFlow, dstFlow            = dat[flow_idx][edgePointCntr ][0], dat[flow_idx][edgePointCntr+int(x)-1 ][0]
-        srcRadius, dstRadius        = dat[radii_idx][edgePointCntr][0], dat[radii_idx][edgePointCntr+int(x)-1][0]        
+                
+        srcCords, dstCords = dat[cord_idx][int(curEdge[0])], dat[cord_idx][int(curEdge[1])]
+        srcPressure, dstPressure  = dat[pres_idx][edgePointCntr ][0], dat[pres_idx][edgePointCntr+int(x)-1 ][0]
+        srcFlow, dstFlow = dat[flow_idx][edgePointCntr ][0], dat[flow_idx][edgePointCntr+int(x)-1 ][0]
+        srcRadius, dstRadius = dat[radii_idx][edgePointCntr][0], dat[radii_idx][edgePointCntr+int(x)-1][0]        
         
-        edgeProps[curEdge]['srcCords'     ].append(srcCords       )
-        edgeProps[curEdge]['dstCords'     ].append(dstCords       )
-        edgeProps[curEdge]['srcPreassure' ].append(srcPreassure   )
-        edgeProps[curEdge]['dstPreassure' ].append(dstPreassure   )
-        edgeProps[curEdge]['srcFlow'      ].append(srcFlow        )
-        edgeProps[curEdge]['dstFlow'      ].append(dstFlow        )
-        edgeProps[curEdge]['srcRadius'    ].append(srcRadius      )
-        edgeProps[curEdge]['dstRadius'    ].append(dstRadius      )
+        if srcPressure < dstPressure:
+            curEdge = (curEdge[1], curEdge[0])
         
-
-
+        if srcPressure!=dstPressure:            
+            edgeProps[curEdge]['srcCords'].append(srcCords)
+            edgeProps[curEdge]['dstCords'].append(dstCords)
+            edgeProps[curEdge]['srcPressure'].append(srcPressure)
+            edgeProps[curEdge]['dstPressure'].append(dstPressure)
+            edgeProps[curEdge]['srcFlow'].append(srcFlow)
+            edgeProps[curEdge]['dstFlow'].append(dstFlow)
+            edgeProps[curEdge]['srcRadius'].append(srcRadius)
+            edgeProps[curEdge]['dstRadius'].append(dstRadius)
+                
         
-        if srcPreassure > dstPreassure:
-            edgeProps[curEdge]['pIdx'] = 1
-        elif  srcPreassure < dstPreassure:
-            edgeProps[curEdge]['pIdx'] = -1
-        else:
-            edgeProps[curEdge]['pIdx'] = 0
         edgePointCntr += int(x)
+        
     return edgeProps
 
 def cleanEdgelist(dat, edgeProps, edgelist_idx=2):
@@ -59,35 +57,14 @@ def cleanEdgelist(dat, edgeProps, edgelist_idx=2):
             continue
         
         #average values
-        edgeProps[curEdge]['srcCords'     ] = edgeProps[curEdge]['srcCords'     ][0]
-        edgeProps[curEdge]['dstCords'     ] = edgeProps[curEdge]['dstCords'     ][0]
-        edgeProps[curEdge]['srcPreassure' ] = edgeProps[curEdge]['srcPreassure' ][0]
-        edgeProps[curEdge]['dstPreassure' ] = edgeProps[curEdge]['dstPreassure' ][0]
-        edgeProps[curEdge]['srcFlow'      ] = sum(edgeProps[curEdge]['srcFlow'      ])
-        edgeProps[curEdge]['dstFlow'      ] = sum(edgeProps[curEdge]['dstFlow'      ])
-        edgeProps[curEdge]['srcRadius'    ] = float(sum(edgeProps[curEdge]['srcRadius'    ]))/len(edgeProps[curEdge]['srcRadius'    ])
-        edgeProps[curEdge]['dstRadius'    ] = float(sum(edgeProps[curEdge]['dstRadius'    ]))/len(edgeProps[curEdge]['dstRadius'    ])
-
-        if edgeProps[curEdge]['pIdx'] == -1: #swap values
-            print "old: ", edgeProps[curEdge]
-            curEdgeProps = edgeProps[curEdge]
-            srcCords, dstCords          = curEdgeProps['srcCords'],     curEdgeProps['dstCords']
-            srcPreassure, dstPreassure  = curEdgeProps['srcPreassure'], curEdgeProps['dstPreassure']
-            srcFlow, dstFlow            = curEdgeProps['srcFlow'],      curEdgeProps['dstFlow']
-            srcRadius, dstRadius        = curEdgeProps['srcRadius'],    curEdgeProps['dstRadius']
-            
-            newEdge = (x[1], x[0])
-
-            edgeProps[newEdge]['srcCords'     ] = (dstCords       )
-            edgeProps[newEdge]['dstCords'     ] = (srcCords       )
-            edgeProps[newEdge]['srcPreassure' ] = (dstPreassure   )
-            edgeProps[newEdge]['dstPreassure' ] = (srcPreassure   )
-            edgeProps[newEdge]['srcFlow'      ] = (dstFlow        )
-            edgeProps[newEdge]['dstFlow'      ] = (srcFlow        )
-            edgeProps[newEdge]['srcRadius'    ] = (dstRadius      )
-            edgeProps[newEdge]['dstRadius'    ] = (srcRadius      )
-            print "new: ", edgeProps[newEdge]
-            del edgeProps[curEdge]
+        edgeProps[curEdge]['srcCords'] = edgeProps[curEdge]['srcCords'][0]
+        edgeProps[curEdge]['dstCords'] = edgeProps[curEdge]['dstCords'][0]
+        edgeProps[curEdge]['srcPressure'] = edgeProps[curEdge]['srcPressure'][0]
+        edgeProps[curEdge]['dstPressure'] = edgeProps[curEdge]['dstPressure'][0]
+        edgeProps[curEdge]['srcFlow'] = sum(edgeProps[curEdge]['srcFlow'])
+        edgeProps[curEdge]['dstFlow'] = sum(edgeProps[curEdge]['dstFlow'])
+        edgeProps[curEdge]['srcRadius'] = np.mean(edgeProps[curEdge]['srcRadius'])
+        edgeProps[curEdge]['dstRadius'] = np.mean(edgeProps[curEdge]['dstRadius'])
 
     return edgeProps
     
