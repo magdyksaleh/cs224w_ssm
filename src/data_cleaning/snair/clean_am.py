@@ -69,7 +69,7 @@ def cleanEdgelist(dat, edgeProps, edgelist_idx=2):
         edgeProps[curEdge]['dstRadius'    ] = float(sum(edgeProps[curEdge]['dstRadius'    ]))/len(edgeProps[curEdge]['dstRadius'    ])
 
         if edgeProps[curEdge]['pIdx'] == -1: #swap values
-            print "old: ", edgeProps[curEdge]
+            # print "old: ", edgeProps[curEdge]
             curEdgeProps = edgeProps[curEdge]
             srcCords, dstCords          = curEdgeProps['srcCords'],     curEdgeProps['dstCords']
             srcPreassure, dstPreassure  = curEdgeProps['srcPreassure'], curEdgeProps['dstPreassure']
@@ -86,15 +86,15 @@ def cleanEdgelist(dat, edgeProps, edgelist_idx=2):
             edgeProps[newEdge]['dstFlow'      ] = (srcFlow        )
             edgeProps[newEdge]['srcRadius'    ] = (dstRadius      )
             edgeProps[newEdge]['dstRadius'    ] = (srcRadius      )
-            print "new: ", edgeProps[newEdge]
+            # print "new: ", edgeProps[newEdge]
             del edgeProps[curEdge]
 
     return edgeProps
     
-LS = read_am('../../../data/og_files/LS174T_spatialGraph_RIN.txt')
-LS_edge_prop = edgeProps(LS)
-# assert(len(LS_edge_prop)==len(LS[2]))
-LS_clean = cleanEdgelist(LS, LS_edge_prop)
+# LS = read_am('../../../data/og_files/LS174T_spatialGraph_RIN.txt')
+# LS_edge_prop = edgeProps(LS)
+# # assert(len(LS_edge_prop)==len(LS[2]))
+# LS_clean = cleanEdgelist(LS, LS_edge_prop)
 
 # write edgelist to file
 # f = open('data/Edgelist_v2/LS174T_clean_EdgesList.txt', 'w')
