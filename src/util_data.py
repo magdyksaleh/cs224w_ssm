@@ -50,7 +50,7 @@ def loadNodeAttr(filename, attr='radius', small=False):
         if radiusFlag:
             radii.append(float(line.strip()))
         
-         if pressureFlag:
+        if pressureFlag:
             pressure.append(float(line.strip()))
         
         if edgeFlag:
