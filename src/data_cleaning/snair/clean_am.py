@@ -68,10 +68,10 @@ def cleanEdgelist(dat, edgeProps, edgelist_idx=2):
 
     return edgeProps
     
-LS = read_am('../../../data/og_files/LS174T_spatialGraph_RIN.txt')
-LS_edge_prop = edgeProps(LS)
-# assert(len(LS_edge_prop)==len(LS[2]))
-LS_clean = cleanEdgelist(LS, LS_edge_prop)
+# LS = read_am('../../../data/og_files/LS174T_spatialGraph_RIN.txt')
+# LS_edge_prop = edgeProps(LS)
+# # assert(len(LS_edge_prop)==len(LS[2]))
+# LS_clean = cleanEdgelist(LS, LS_edge_prop)
 
 # write edgelist to file
 # f = open('data/Edgelist_v2/LS174T_clean_EdgesList.txt', 'w')
