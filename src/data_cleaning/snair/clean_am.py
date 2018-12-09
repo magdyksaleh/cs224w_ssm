@@ -24,6 +24,7 @@ def edge_dir(dat, numedgepts_idx=3, pres_idx=6):
             dirs.append(-1)
         else:
             dirs.append(0)
+        i+=int(x[0])  
     return dirs
 
 def clean_edgelist(dat, edge_dirs, edgelist_idx=2):
@@ -42,6 +43,7 @@ def clean_edgelist(dat, edge_dirs, edgelist_idx=2):
     
 LS = read_am('data/og_files/LS174T_spatialGraph_RIN.txt')
 LS_edge_dir = edge_dir(LS)
+assert(len(LS_edge_dir)==len(LS[2]))
 LS_clean = clean_edgelist(LS, LS_edge_dir)
 
 # write edgelist to file
