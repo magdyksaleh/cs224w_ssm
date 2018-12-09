@@ -18,9 +18,34 @@ def read_am(fname):
                 dat[cur].append([float(y) for y in x.split(' ')])
     return dat
 
-def edgeProps(dat, cord_idx = 1, edge_idx = 2, numedgepts_idx = 3, pres_idx = 6, flow_idx = 7, radii_idx = 5):
+def edgeProps(dat, cord_idx = 1, edge_idx = 2, numedgepts_idx = 3, pres_idx = 6, flow_idx = 7, radii_idx = 5, small = False):
     edgeProps = defaultdict(lambda: defaultdict(list))  #edge indexed dict
     edgePointCntr = 0 
+
+    if small:
+        for i, x in enumerate(dat[numedgepts_idx]):
+            curEdge = tuple(dat[edge_idx][i])
+            x = 2
+                    
+            srcCords, dstCords = dat[cord_idx][int(curEdge[0])], dat[cord_idx][int(curEdge[1])]
+            srcFlow, dstFlow = dat[flow_idx][edgePointCntr ][0], dat[flow_idx][edgePointCntr+int(x)-1 ][0]
+            srcRadius, dstRadius = dat[radii_idx][edgePointCntr][0], dat[radii_idx][edgePointCntr+int(x)-1][0]        
+            
+            if srcPressure < dstPressure:
+                curEdge = (curEdge[1], curEdge[0])
+            
+            if srcPressure!=dstPressure:            
+                edgeProps[curEdge]['srcCords'].append(srcCords)
+                edgeProps[curEdge]['dstCords'].append(dstCords)
+                edgeProps[curEdge]['srcFlow'].append(srcFlow)
+                edgeProps[curEdge]['dstFlow'].append(dstFlow)
+                edgeProps[curEdge]['srcRadius'].append(srcRadius)
+                edgeProps[curEdge]['dstRadius'].append(dstRadius)
+                    
+            
+            edgePointCntr += int(x)
+            
+        return edgeProps
 
     for i, x in enumerate(dat[numedgepts_idx]):
         curEdge = tuple(dat[edge_idx][i])
@@ -48,6 +73,9 @@ def edgeProps(dat, cord_idx = 1, edge_idx = 2, numedgepts_idx = 3, pres_idx = 6,
         edgePointCntr += int(x)
         
     return edgeProps
+
+
+
 
 def cleanEdgelist(dat, edgeProps, edgelist_idx=2):
     for x in copy.deepcopy(edgeProps):
