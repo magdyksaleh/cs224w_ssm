@@ -9,12 +9,12 @@ import matplotlib.pyplot as plt
 
 def getEfficiency(G):
     NIdToDistH = snap.TIntH()
-    shortestPaths = 0
-    for i in tqdm(range(G.GetNodes())):
-        snap.GetShortPath(G, i, NIdToDistH)
-        shortestPaths += sum([NIdToDistH[item] for item in NIdToDistH])
+    shortestPaths_harmonic = 0
+    for node in tqdm(G.Nodes()):
+        snap.GetShortPath(G, node.GetId(), NIdToDistH)
+        shortestPaths_harmonic += sum([1.0/NIdToDistH[item] if NIdToDistH[item] > 0 else 0 for item in NIdToDistH])
         # if i%100==0: print (i, 1.0/shortestPaths)
-    return 1.0/shortestPaths
+    return shortestPaths_harmonic
 
 
 def genErdosRenyi(N, E):
@@ -146,8 +146,8 @@ def generatePlots(G, name):
         outList_GNP.append(snap.GetBfsTree(G, nodeGNPId, True, False).GetNodes())
         outList_SmallWorld.append(snap.GetBfsTree(G, nodeSmall, True, False).GetNodes())
         inList.append(snap.GetBfsTree(G, nodeId, False, True).GetNodes())
-        inList_GNP.append(snap.GetBfsTree(G, nodeGNPId, True, False).GetNodes())
-        inList_SmallWorld.append(snap.GetBfsTree(G, nodeSmall, True, False).GetNodes())
+        inList_GNP.append(snap.GetBfsTree(G, nodeGNPId, False, True).GetNodes())
+        inList_SmallWorld.append(snap.GetBfsTree(G, nodeSmall, False, True).GetNodes())
     inList.sort()
     outList.sort()
     inList_GNP.sort()
@@ -188,10 +188,15 @@ def generatePlots(G, name):
 
 
 
-G_LS174t = snap.LoadEdgeList(snap.PNEANet, "../data/Edgelist/LS174T_clean_EdgesList.txt", 0, 1)
-generatePlots(G_LS174t, 'LS174T')
-# print "Efficiency of LS174T: {}".format( getEfficiency(G_LS174t))
+G_Mesentery = snap.LoadEdgeList(snap.PNEANet, "../data/Edgelist/Mesentery_clean_EdgeList.txt", 0, 1)
+# generatePlots(G_Mesentery, 'Mesentery')
+print "Efficiency of G_Mesentery: {}".format( getEfficiency(G_Mesentery))
 
-G_SW122 = snap.LoadEdgeList(snap.PNEANet, "../data/Edgelist/SW1222_clean_EdgesList.txt", 0, 1)
-generatePlots(G_SW122, 'SW1222')
-# print "Efficiency of SW1222: {}".format( getEfficiency(G_SW122))
+
+G_LS174t = snap.LoadEdgeList(snap.PNEANet, "../data/Edgelist_v2/LS174T_clean_EdgesList.txt", 0, 1)
+# generatePlots(G_LS174t, 'LS174T')
+print "Efficiency of LS174T: {}".format( getEfficiency(G_LS174t))
+
+G_SW122 = snap.LoadEdgeList(snap.PNEANet, "../data/Edgelist_v2/SW1222_clean_EdgesList.txt", 0, 1)
+# generatePlots(G_SW122, 'SW1222')
+print "Efficiency of SW1222: {}".format( getEfficiency(G_SW122))

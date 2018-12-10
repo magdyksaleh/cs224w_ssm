@@ -75,8 +75,6 @@ def edgeProps(dat, cord_idx = 1, edge_idx = 2, numedgepts_idx = 3, pres_idx = 6,
     return edgeProps
 
 
-
-
 def cleanEdgelist(dat, edgeProps, edgelist_idx=2):
     for x in copy.deepcopy(edgeProps):
         curEdge = tuple(x)
