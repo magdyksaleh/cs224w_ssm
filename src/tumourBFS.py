@@ -26,7 +26,7 @@ def genErdosRenyi(N, E):
     return: Erdos-Renyi graph with N nodes and E edges
     """
     ############################################################################
-    Graph = snap.TUNGraph.New()
+    Graph = snap.TNGraph.New()
     for i in range(N):
         Graph.AddNode(i)
         
@@ -52,7 +52,7 @@ def genCircle(N=5242):
     """
     ############################################################################
     # TODO: Your code here!
-    Graph = snap.TUNGraph.New()
+    Graph = snap.TNGraph.New()
     for i in range(N):
         Graph.AddNode(i)
     
@@ -134,26 +134,20 @@ def genNullModelBfs(h):
     return (x_cords, y_cords)
 
 def generatePlots(G, name):
-    inList, inList_GNP, inList_SmallWorld, outList, outList_GNP, outList_SmallWorld = [], [], [], [], [], []
+    inList, inList_GNP, outList, outList_GNP = [], [], [], []
     GNP = genErdosRenyi(G.GetNodes(), G.GetEdges())
-    G_small = genSmallWorld(G.GetNodes(), G.GetEdges())
     numSamples = 5000
     for i in tqdm(range(numSamples)):
         nodeId = G.GetRndNId()
         nodeGNPId = GNP.GetRndNId()
-        nodeSmall = G_small.GetRndNId()
         outList.append(snap.GetBfsTree(G, nodeId, True, False).GetNodes())
-        outList_GNP.append(snap.GetBfsTree(G, nodeGNPId, True, False).GetNodes())
-        outList_SmallWorld.append(snap.GetBfsTree(G, nodeSmall, True, False).GetNodes())
+        outList_GNP.append(snap.GetBfsTree(GNP, nodeGNPId, True, False).GetNodes())
         inList.append(snap.GetBfsTree(G, nodeId, False, True).GetNodes())
-        inList_GNP.append(snap.GetBfsTree(G, nodeGNPId, True, False).GetNodes())
-        inList_SmallWorld.append(snap.GetBfsTree(G, nodeSmall, True, False).GetNodes())
+        inList_GNP.append(snap.GetBfsTree(GNP, nodeGNPId, False, True).GetNodes())
     inList.sort()
     outList.sort()
     inList_GNP.sort()
     outList_GNP.sort()
-    outList_SmallWorld.sort()
-    inList_SmallWorld.sort()
 
     x = [float(i)/numSamples for i in range(numSamples)]
     plt.subplot(2, 1, 1)
@@ -161,7 +155,6 @@ def generatePlots(G, name):
     ax.set_yscale('log')
     plt.plot(x, inList, label=name)
     plt.plot(x, inList_GNP, label='Erdos Reini')
-    plt.plot(x, inList_SmallWorld, label='Small World')
     x_cords13, y_cords13 = genNullModelBfs(13)
     plt.plot(x_cords13, y_cords13, label='Null Model')
     plt.title('Reachability using Inlinks - {}'.format(name))
@@ -174,7 +167,6 @@ def generatePlots(G, name):
     ax.set_yscale('log')
     plt.plot(x, outList, label=name)
     plt.plot(x, outList_GNP, label='Erdos Reini')
-    plt.plot(x, outList_SmallWorld, label='Small World')
     x_cords12, y_cords12 = genNullModelBfs(12)
     plt.plot(x_cords12, y_cords12, label='Null Model')
     plt.title('Reachability using outlinks - {}'.format(name))
@@ -183,15 +175,14 @@ def generatePlots(G, name):
     plt.legend()
     plt.tight_layout()
     plt.savefig(name+'_BFS.pdf')
-    plt.show()
     plt.clf()
 
 
 
-G_LS174t = snap.LoadEdgeList(snap.PNEANet, "../data/Edgelist/LS174T_clean_EdgesList.txt", 0, 1)
+G_LS174t = snap.LoadEdgeList(snap.PNEANet, "../data/Edgelist_v2/LS174T_clean_EdgesList.txt", 0, 1)
 generatePlots(G_LS174t, 'LS174T')
 # print "Efficiency of LS174T: {}".format( getEfficiency(G_LS174t))
 
-G_SW122 = snap.LoadEdgeList(snap.PNEANet, "../data/Edgelist/SW1222_clean_EdgesList.txt", 0, 1)
+G_SW122 = snap.LoadEdgeList(snap.PNEANet, "../data/Edgelist_v2/SW1222_clean_EdgesList.txt", 0, 1)
 generatePlots(G_SW122, 'SW1222')
 # print "Efficiency of SW1222: {}".format( getEfficiency(G_SW122))
