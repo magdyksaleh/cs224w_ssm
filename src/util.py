@@ -4,9 +4,11 @@ import copy
 import util_data
 import collections
 import bisect
+import numpy as np
 from collections import OrderedDict
 from scipy.stats import pearsonr
 from tqdm import tqdm
+from data_cleaning.snair.clean_am import *
 
 #tree+inverted tree nullmodel
 def genTreeInvTreeNullModelPlot(h):
@@ -254,6 +256,7 @@ def get_influence_set(G, x, S = set([])):
     x_influence = set([node.GetId() for node in snap.GetBfsTree(G, x, True, False).Nodes()])
     return x_influence - S
 
+
 def test_influence_maximisation():
     G = snap.TNGraph.New()
     for i in range(7):
@@ -265,3 +268,74 @@ def test_influence_maximisation():
     G.AddEdge(5,6)
     possible_nodes = [node.GetId() for node in G.Nodes()]
     assert influence_maximisation(G, possible_nodes, k=2) == set([0,4])
+
+
+def get_basic_feature(graph, node_id):
+    NI = graph.GetNI(node_id)
+    v_1 = NI.GetDeg()
+    nbrs = NI.GetOutEdges()
+    nbr_vec = snap.TIntV()
+    nbrs = [nbr_vec.Add(nbr) for nbr in nbrs]
+    nbr_vec.Add(node_id)
+    subgraph = snap.GetSubGraph(graph, nbr_vec)
+    v_2 = subgraph.GetEdges()
+    total_edges = 0
+    for node in subgraph.Nodes():
+        orig_NI = graph.GetNI(node.GetId())
+        total_edges += orig_NI.GetDeg()
+    v_3 = total_edges - 2*v_2
+    feature = snap.TFltV()
+    feature.Add(v_1)
+    feature.Add(v_2)
+    feature.Add(v_3)
+
+    return feature
+
+def calc_similarity(feature_1, feature_2):
+    norm_1 = np.linalg.norm(np.asarray(feature_1))
+    norm_2 = np.linalg.norm(np.asarray(feature_2))
+    if norm_1 == 0 or norm_2 == 0:
+        return 0
+    return np.sum(np.asarray(feature_1) * np.asarray(feature_2))/(norm_1 * norm_2)
+
+
+
+def run_rolx_iteration(graph, features):
+    new_features = snap.TIntFltVH()
+    iterator =  features.BegI()
+    while not iterator.IsEnd():
+        node_id = iterator.GetKey()
+        nodeI = graph.GetNI(node_id)
+        node_nbrs = [nbr for nbr in nodeI.GetOutEdges()]
+        sum_aggregate = np.zeros(features[0].Len())
+        num_nbrs = len(node_nbrs)
+        for node_nbr in node_nbrs:
+            sum_aggregate += np.asarray(features[node_nbr], dtype=np.float32)
+        new_feature = snap.TFltV(features[node_id])
+        if num_nbrs == 0:
+            mean_aggregate = np.zeros(features[0].Len())
+            sum_aggregate = np.zeros(features[0].Len())
+        else:
+            mean_aggregate = sum_aggregate/len(node_nbrs)
+        for i in range(mean_aggregate.size):
+            new_feature.Add(mean_aggregate[i])
+        for i in range(sum_aggregate.size):
+            new_feature.Add(sum_aggregate[i])
+        new_features[node_id] = new_feature
+        iterator.Next()
+    return new_features
+
+def get_pos(txt_file, small = False):
+    if small:
+        coordinates = np.loadtxt(txt_file)[:,:2]
+        return coordinates
+    LS = read_am(txt_file)
+    LS_edge_prop = edgeProps(LS, small = small)
+#     assert(len(LS_edge_prop)==len(LS[2]))
+    LS_clean = cleanEdgelist(LS, LS_edge_prop)
+    coordinates = {}
+    for edge, attr in LS_clean.items():
+        coordinates[edge[0]] = np.asarray(attr['srcCords'])[:2]
+        coordinates[edge[1]] = np.asarray(attr['dstCords'])[:2]
+#     return dict(zip(range(coordinates.shape[0]), coordinates))
+    return coordinates
