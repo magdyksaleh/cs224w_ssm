@@ -1,7 +1,0 @@
-# Directed graph: ../data/subgraphs/4/7.txt 
-# Nodes: 4 Edges: 4
-# FromNodeId	ToNodeId
-2	1
-2	3
-3	0
-3	1
